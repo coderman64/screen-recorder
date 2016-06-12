@@ -32,15 +32,17 @@ class recorder:
     def __init__(self):
         self.going = False;
         self.process = None;
+        self.filename = "ScreenCapture.mpg"
     def record(self,filename):
         try:
             if self.process.is_alive():
-                self.going = False; #stops the recording process if it is running
-        except AttributeError: #this happens if self.process == None
+                self.going = False;
+        except AttributeError:
             print("test")
-        self.process = threading.Thread(target=self._record); #create thread for recording
-        self.process.start() #start the process
-    def _record(self): #function called by the thread above to record audio in the background
+        self.process = threading.Thread(target=self._record);
+        self.process.start()
+        self.filename = filename;
+    def _record(self):
         p = pyaudio.PyAudio()
         stream = p.open(format=FORMAT,
                         channels=CHANNELS,
@@ -71,6 +73,7 @@ class recorder:
         wf.writeframes(b''.join(frames))
         wf.close()
         
+
     def stop_recording(self):
         self.going = False;
         

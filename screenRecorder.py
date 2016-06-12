@@ -74,6 +74,7 @@ class App: #the main class for the main window
         os.chdir("..")
         self.entry1.insert(END,defaultFile)
         master.title(string = "Screen Recorder")
+        master.iconbitmap("icon.ico")
         master.resizable(width = False, height = False)
 
         self.what = "desktop"
@@ -140,7 +141,7 @@ class App: #the main class for the main window
             available = False
             fileNum = 0;
             self.recording = False
-            self.proc.terminate();
+            self.proc.terminate()
             self.recorder.stop_recording();
             try:
                 os.mkdir("ScreenCaptures")
