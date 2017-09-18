@@ -3,7 +3,7 @@ A python GUI for recording your screen
 
 This program provides an easy GUI-based interface to ffmpeg's gdigrab feature, which allows you to take a video recording of your screen in Windows. I also used pyaudio to record audio as your screen is being recorded.
 
-##how to get it running
+## how to get it running
 This should work with any python 3.x version, as long as you have tkinter and pyaudio installed. Tkinter usually comes with the default python installation, and you can install pyaudio through one of the following commands:
 ```
 pip install pyaudio
