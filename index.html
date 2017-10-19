@@ -1,70 +1,79 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Coderman64's Github</title>
+  <link rel="stylesheet" type="text/css" href="index.css">
+</head>
+<body>
+  <div id = "coolBackground" style="background-image:url('scrRec.gif');"></div>
+ 
+  <!--top bar-->
+  <div id="mainTitle">
+      <a href="/index.html"><img src="/logo.png" width="200px" style="margin-top:0px; margin-left:0px;"></a>
+      <div id="sidebar1">
+          <div id="innersidebar">
+            <h2>Games</h2>
+            <ul>
+              <li><a href="http://coderman64.github.io/ThePath/">The Path</a></li>
+              <li><a href="http://coderman64.github.io/TheBlock/">The Block</a></li>
+              </ul>
+            <h2>Web Experiments</h2>
+            <ul>
+              <li><a href="http://coderman64.github.io/HTML-navigation-app">Navigation App Attempt</a></li>
+              <li><a href="http://coderman64.github.io/webWindow/">webWindow</a></li>
+              <li><a href="http://coderman64.github.io/web-synth/">web synth</a>s</li>    
+            </ul>
+            <h2>Other</h2>
+            <ul>
+            <li><a href="http://coderman64.github.io/Cyntacs">Cyntacs</a></li>
+            <li><a href="http://coderman64.github.io/screen-recorder/">screen recorder</a></li>
+            <li><a href="http://coderman64.github.io/browsi/">Browsi</a></li>
+          </ul>
+        </div>
+        </div>
+      <div id="hamburgerButton" width="50px" height="50px" style="background-color:white; height: 50px; width: 50px; position: fixed; top: 10px; right: 10px;padding: 0 0 0 0;z-index:90;">
+        <div id="TopHamburger" style="height:4px;width:20px; position:relative; left:15px; top:16px; background-color:#888888; transform:rotate(0deg);"></div>
+        <div id="MidHamburger" style="height:4px;width:20px; position:relative; left:15px; top:19px; background-color:#888888;"></div>
+        <div id="LowHamburger" style="height:4px;width:20px; position:relative; left:15px; top:22px; background-color:#888888;"></div>
+      </div>
+  </div>
 
-  <head>
-    <meta charset='utf-8'>
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <meta name="description" content="Screen-recorder : A python GUI for recording your screen">
-
-    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
-
-    <title>Screen-recorder</title>
-  </head>
-
-  <body>
-
-    <!-- HEADER -->
-    <div id="header_wrap" class="outer">
-        <header class="inner">
-          <a id="forkme_banner" href="https://github.com/coderman64/screen-recorder">View on GitHub</a>
-
-          <h1 id="project_title">Screen-recorder</h1>
-          <h2 id="project_tagline">A python GUI for recording your screen</h2>
-
-            <section id="downloads">
-              <a class="zip_download_link" href="https://github.com/coderman64/screen-recorder/zipball/master">Download this project as a .zip file</a>
-              <a class="tar_download_link" href="https://github.com/coderman64/screen-recorder/tarball/master">Download this project as a tar.gz file</a>
-            </section>
-        </header>
-    </div>
-
-    <!-- MAIN CONTENT -->
-    <div id="main_content_wrap" class="outer">
-      <section id="main_content" class="inner">
-        <h1>
-<a id="screen-recorder" class="anchor" href="#screen-recorder" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>screen-recorder</h1>
-
-<p>A python GUI for recording your screen in Windows.</p>
-
-<p>This program provides an easy GUI-based interface to ffmpeg's gdigrab feature, which allows you to take a video recording of your screen in Windows. I also used pyaudio to record audio as your screen is being recorded.</p>
-
-<p>Dowload the .exe file from <a href="http://coderman64.github.io/screen-recorder/screenRecorder.zip">here</a>. Run "ScreenRecorder.exe"</p>
-<h2>
-<a id="how-to-get-it-running" class="anchor" href="#how-to-get-it-running" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>how to get the script up and running</h2>
-
-<p>This should work with any python 3.x version, as long as you have tkinter and pyaudio installed. Tkinter usually comes with the default python installation, and you can install pyaudio through one of the following commands:</p>
-
-<pre><code>pip install pyaudio
-</code></pre>
-
-<p>or</p>
-
-<pre><code>python -m pip install pyaudio
-</code></pre>
-
-<p>additionally, you need to get ffmpeg.exe from the windows package <a href="https://ffmpeg.zeranoe.com/builds/">here</a>. then just take ffmpeg.exe from the bin folder, and put it in the same folder as the script. Finally, run ScreenRecorder.py.</p>
-      </section>
-    </div>
-
-    <!-- FOOTER  -->
-    <div id="footer_wrap" class="outer">
-      <footer class="inner">
-        <p class="copyright">Screen-recorder maintained by <a href="https://github.com/coderman64">coderman64</a></p>
-        <p>Published with <a href="https://pages.github.com">GitHub Pages</a></p>
-      </footer>
-    </div>
-
+  <!--main content-->
+  <div id="mainContent">
+    <a id="screen-recorder" class="anchor" href="#screen-recorder" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>screen-recorder</h1>
     
+    <p>A python GUI for recording your screen in Windows.</p>
+    
+    <p>This program provides an easy GUI-based interface to ffmpeg's gdigrab feature, which allows you to take a video recording of your screen in Windows. I also used pyaudio to record audio as your screen is being recorded.</p>
+    
+    <p>Dowload the .exe file from <a href="http://coderman64.github.io/screen-recorder/screenRecorder.zip">here</a>. Run "ScreenRecorder.exe"</p>
+    <h2>
+    <a id="how-to-get-it-running" class="anchor" href="#how-to-get-it-running" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>how to get the script up and running</h2>
+    
+    <p>This should work with any python 3.x version, as long as you have tkinter and pyaudio installed. Tkinter usually comes with the default python installation, and you can install pyaudio through one of the following commands:</p>
+    
+    <pre><code>pip install pyaudio
+    </code></pre>
+    
+    <p>or</p>
+    
+    <pre><code>python -m pip install pyaudio
+    </code></pre>
+    
+    <p>additionally, you need to get ffmpeg.exe from the windows package <a href="https://ffmpeg.zeranoe.com/builds/">here</a>. then just take ffmpeg.exe from the bin folder, and put it in the same folder as the script. Finally, run ScreenRecorder.py.</p>
+    
+</div>
 
-  </body>
+<!--footer-->
+<div id="footer">
+    <div>"The Path," "Coderman64," and the Coderman64 logo are all &copy; 2017 Coderman64, all rights reserved. <br>Having issues? Click <a href = "/Help.html">here</a></div>
+    <div style="background-color:white; height:50px; width: 150px; margin-left:auto;"><img src="/logo.png" width="150px"></div>
+</div>
+
+<!--fade effect for top bar, as you scroll down the page-->
+<script src="/titleBar.js"></script>
+</body>
 </html>
