@@ -86,20 +86,35 @@ class App: #the main class for the main window
         self.radio2.grid(row = 2, column = 0, sticky = "w")
         self.entry2 = Entry(master, state=DISABLED);
         self.entry2.grid(row = 2, column = 1);
+
+        """self.rcchecked = False
+        self.recordcam = Checkbutton(master, text="Record webcam in corner", command = self.checkboxChanged)
+        self.recordcam.grid(row = 3, column = 0)
+
+        self.devicename = StringVar(master)
+        self.devicename.set("")
+        self.deviceselector = OptionMenu(master, self.devicename, *["test","Webcam","Goobercam","JoeShmoe Cam"])
+        self.deviceselector.config(state=DISABLED)
+        self.deviceselector.grid(row = 3, column = 1)"""
         
         self.startButton = Button(master, text="Start Recording", command = self.startRecord)
-        self.startButton.grid(row = 3, column = 0, columnspan = 2)
+        self.startButton.grid(row = 4, column = 0, columnspan = 2)
 
         self.recording = False
         self.proc = None;
         self.recorder = recordFile.recorder();
         self.master = master
+        self.mergeProcess = None
         self.pollClosed();
 
     def pollClosed(self):
         if self.recording == True:
             if self.proc.poll() != None:
                 self.startRecord()
+        if self.mergeProcess:
+            #print(self.mergeProcess.poll())
+            if self.mergeProcess.poll() != None:
+                self.startButton.config(text="Start Recording", state = NORMAL)
         root.after(100, self.pollClosed)
 
     def enDis(self):
@@ -108,7 +123,11 @@ class App: #the main class for the main window
     def enDis1(self):
         self.entry2.config(state = NORMAL)
         self.what = "title"
-
+    def checkboxChanged(self):
+        self.rcchecked = not self.rcchecked
+        print("Checkbox changed to" + str(self.rcchecked))
+        if self.rcchecked:
+            pass
     def startRecord(self):
         if self.recording == False:
             self.startButton.config(text="Stop Recording")
@@ -124,14 +143,16 @@ class App: #the main class for the main window
             if self.what == "title":
                 self.entry2.config(state = DISABLED);
             self.recording = True
+            startupinfo = subprocess.STARTUPINFO()
+            startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+            startupinfo.wShowWindow = subprocess.SW_HIDE
             if self.what == "title":
-                self.proc = subprocess.Popen(args=['ffmpeg.exe','-f','gdigrab','-i',str("title="+self.entry2.get()),'-y','tmp/tmp.mpg'])
+                self.proc = subprocess.Popen(args=['ffmpeg.exe','-f','gdigrab','-i',str("title="+self.entry2.get()),'-y','tmp/tmp.mpg'], startupinfo=startupinfo)
             else:
-                self.proc = subprocess.Popen(args=['ffmpeg.exe','-f','gdigrab','-i',"desktop",'-y','tmp/tmp.mpg'])
+                self.proc = subprocess.Popen(args=['ffmpeg.exe','-f','gdigrab','-i',"desktop",'-y','tmp/tmp.mpg'], startupinfo=startupinfo)
             self.recorder.record(self.filename);
             root.grab_set();
         elif self.recording == True:
-            self.startButton.config(text="Start Recording")
             defaultFile = self.filename
             self.entry1.config(state = NORMAL);
             self.radio1.config(state = NORMAL);
@@ -147,9 +168,13 @@ class App: #the main class for the main window
                 os.mkdir("ScreenCaptures")
             except FileExistsError:
                 pass
-            self.master.title(string = "Screen Recorder (converting...)")
-            test = subprocess.Popen(args=["ffmpeg","-i",'tmp/tmp.mpg',"-i",'tmp/tmp.wav',"-shortest","ScreenCaptures/"+self.filename])
-            test.wait();
+            self.master.title(string = "Screen Recorder (merging...)")
+            self.startButton.config(text="Merging previous recording, please wait...", state = DISABLED)
+            
+            startupinfo = subprocess.STARTUPINFO()
+            startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+            startupinfo.wShowWindow = subprocess.SW_HIDE
+            self.mergeProcess = subprocess.Popen(args=["ffmpeg","-i",'tmp/tmp.mpg',"-i",'tmp/tmp.wav',"-shortest","ScreenCaptures/"+self.filename], startupinfo=startupinfo)
 
             os.chdir("ScreenCaptures")
             while available == False:
