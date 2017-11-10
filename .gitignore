@@ -105,3 +105,6 @@ ScreenCaptures/
 
 # temporary files 
 tmp/
+
+#ffmpeg
+ffmpeg.exe
