@@ -16,12 +16,11 @@ additionally, you need to get ffmpeg.exe from the windows package [here](https:/
 
 ## what is going on?
 
-Here's what I have on the to-do list for this project:
+Here's what I have on the to-do list for this project. Please note that this is more of an interesting side project for me, and the below consists of things that I would _like_ to do. While it would be nice, please don't expect me to complete these in a timely manner.
 
 * add webcam support, so you can (optionally) see yourself in the lower corner of the screen.
-* change the audio imput from pyaudio to ffmpeg and DirectShow, which is perfectly fine for recording audio. Plus, less dependencies = more better! (Grammar? Don't know what you are talking about.)
 * add more customization options, perhaps in a separate window.
-* keep it light, simple, and working! (hopefully)
+* keep it light, simple, and working!
 
 Webpage:
 * change the website in Edge & IE so it is a still image instead of a gif. As it is right now, Edge & IE use _way_ too much RAM to render it.
