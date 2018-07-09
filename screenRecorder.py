@@ -1,6 +1,6 @@
 """
     ScreenRecorder.py is a small, Windows app that records video from your screen and audio from the default microphone
-    Copyright (C) 2016  coderman64
+    Copyright (C) 2018  coderman64
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -34,7 +34,7 @@ class Alert(Toplevel):
         self.result = None
 
         self.OK = Button(self, text = "OK", width=10, command = self.ok, default=ACTIVE)
-        self.OK.pack();
+        self.OK.pack()
         self.bind("<Return>", self.test)
         self.grab_set()
 
@@ -49,13 +49,13 @@ class Alert(Toplevel):
 class App: #the main class for the main window
     def __init__(self, master):
         
-        label1 = Label(master, text="File Name:");
-        label1.grid(row = 0, column = 0, sticky = "");
-        self.entry1 = Entry(master);
-        self.entry1.grid(row = 0, column = 1);
+        label1 = Label(master, text="File Name:")
+        label1.grid(row = 0, column = 0, sticky = "")
+        self.entry1 = Entry(master)
+        self.entry1.grid(row = 0, column = 1)
         defaultFile = "ScreenCapture.mp4"
         available = False
-        fileNum = 0;
+        fileNum = 0
         try:
             os.mkdir("ScreenCaptures")
         except FileExistsError:
@@ -84,8 +84,8 @@ class App: #the main class for the main window
         self.radio2.deselect()
         self.radio1.grid(row = 1, column = 0, sticky="w")
         self.radio2.grid(row = 2, column = 0, sticky = "w")
-        self.entry2 = Entry(master, state=DISABLED);
-        self.entry2.grid(row = 2, column = 1);
+        self.entry2 = Entry(master, state=DISABLED)
+        self.entry2.grid(row = 2, column = 1)
 
         self.webcamdevices = Webcam.listCam()
         
@@ -105,11 +105,11 @@ class App: #the main class for the main window
         self.startButton.grid(row = 4, column = 0, columnspan = 2)
 
         self.recording = False
-        self.proc = None;
-        self.recorder = recordFile.recorder();
+        self.proc = None
+        self.recorder = recordFile.recorder()
         self.master = master
         self.mergeProcess = None
-        self.pollClosed();
+        self.pollClosed()
 
     def pollClosed(self):
         if self.recording == True:
@@ -138,10 +138,10 @@ class App: #the main class for the main window
     def startRecord(self):
         if self.recording == False:
             self.startButton.config(text="Stop Recording")
-            self.filename = self.entry1.get();
-            self.entry1.config(state = DISABLED);
-            self.radio1.config(state = DISABLED);
-            self.radio2.config(state = DISABLED);
+            self.filename = self.entry1.get()
+            self.entry1.config(state = DISABLED)
+            self.radio1.config(state = DISABLED)
+            self.radio2.config(state = DISABLED)
             self.deviceselector.config(state = DISABLED)
             self.master.title(string = "Screen Recorder (Recording...)")
             try:
@@ -149,21 +149,21 @@ class App: #the main class for the main window
             except FileExistsError:
                 pass
             if self.what == "title":
-                self.entry2.config(state = DISABLED);
+                self.entry2.config(state = DISABLED)
             self.recording = True
             startupinfo = subprocess.STARTUPINFO()
             startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
             startupinfo.wShowWindow = subprocess.SW_HIDE
             if self.what == "title":
-                self.proc = subprocess.Popen(args=['ffmpeg.exe','-f','gdigrab','-i',str("title="+self.entry2.get()),'-f','dshow','-i','audio=Microphone (Realtek High Definition Audio)','-y','-c:v','mpeg4','-qscale:v','7','tmp/tmp.avi'], startupinfo=startupinfo)
+                self.proc = subprocess.Popen(args=['ffmpeg.exe','-f','gdigrab','-i',str("title="+self.entry2.get()),'-framerate','30','-y','-c:v','mpeg4','-qscale:v','7','tmp/tmp.mkv'], startupinfo=startupinfo)
             else:
-                self.proc = subprocess.Popen(args=['ffmpeg.exe','-f','gdigrab','-i',"desktop",'-f','dshow','-i','audio=Microphone (Realtek High Definition Audio)','-y','-c:v','mpeg4','-qscale:v','7','tmp/tmp.avi'], startupinfo=startupinfo)
-            #self.recorder.record(self.filename)
+                self.proc = subprocess.Popen(args=['ffmpeg.exe','-f','gdigrab','-i',"desktop",'-framerate','30','-y','-c:v','mpeg4','-qscale:v','7','tmp/tmp.mkv'], startupinfo=startupinfo)
+            self.recorder.record("tmp/tmp.wav")
             self.recordcam.config(state = DISABLED)
             if self.rcchecked == True:
                 self.webcamrecorder.setDevice(str(self.devicename.get()))
-                self.webcamrecorder.startCapture("webcamtmp.mp4");
-            root.grab_set();
+                self.webcamrecorder.startCapture("tmp/webcamtmp.mkv")
+            root.grab_set()
         elif self.recording == True:
             defaultFile = self.filename
             self.entry1.config(state = NORMAL)
@@ -174,12 +174,12 @@ class App: #the main class for the main window
             if self.what == "title":
                 self.entry2.config(state = NORMAL)
             available = False
-            fileNum = 0;
+            fileNum = 0
             self.recording = False
             self.proc.terminate()
-            #self.recorder.stop_recording();
+            self.recorder.stop_recording()
             if self.rcchecked:
-                self.webcamrecorder.stopCapture();
+                self.webcamrecorder.stopCapture()
             try:
                 os.mkdir("ScreenCaptures")
             except FileExistsError:
@@ -190,7 +190,11 @@ class App: #the main class for the main window
             startupinfo = subprocess.STARTUPINFO()
             startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
             startupinfo.wShowWindow = subprocess.SW_HIDE
-            self.mergeProcess = subprocess.Popen(args= ["ffmpeg","-i",'tmp/tmp.avi',"-shortest",'-y',"ScreenCaptures/"+self.filename], startupinfo=startupinfo)
+            if self.rcchecked:
+                self.mergeProcess = subprocess.Popen(args= ["ffmpeg","-i",'tmp/tmp.mkv','-i','tmp/tmp.wav','-i','tmp/webcamtmp.mkv','-filter_complex','[2:v] scale=640:-1 [inner]; [0:0][inner] overlay=0:0 [out]',"-shortest",'-map','[out]','-y',"ScreenCaptures/"+self.filename])
+            else:
+                self.mergeProcess = subprocess.Popen(args= ["ffmpeg","-i",'tmp/tmp.mkv','-i','tmp/tmp.wav',"-shortest",'-y',"ScreenCaptures/"+self.filename], startupinfo=startupinfo)
+
 
             os.chdir("ScreenCaptures")
             while available == False:
@@ -211,5 +215,5 @@ class App: #the main class for the main window
 root = Tk()
 
 app = App(root)
-root.mainloop();
+root.mainloop()
 

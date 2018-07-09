@@ -1,0 +1,1 @@
+pyW .\screenRecorder.py
