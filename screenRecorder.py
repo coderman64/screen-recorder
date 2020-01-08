@@ -34,7 +34,7 @@ class Alert(Toplevel):
         self.result = None
 
         self.OK = Button(self, text = "OK", width=10, command = self.ok, default=ACTIVE)
-        self.OK.pack();
+        self.OK.pack()
         self.bind("<Return>", self.test)
         self.grab_set()
 
@@ -49,13 +49,13 @@ class Alert(Toplevel):
 class App: #the main class for the main window
     def __init__(self, master):
         
-        label1 = Label(master, text="File Name:");
-        label1.grid(row = 0, column = 0, sticky = "");
-        self.entry1 = Entry(master);
-        self.entry1.grid(row = 0, column = 1);
+        label1 = Label(master, text="File Name:")
+        label1.grid(row = 0, column = 0, sticky = "")
+        self.entry1 = Entry(master)
+        self.entry1.grid(row = 0, column = 1)
         defaultFile = "ScreenCapture.mp4"
         available = False
-        fileNum = 0;
+        fileNum = 0
         try:
             os.mkdir("ScreenCaptures")
         except FileExistsError:
@@ -84,8 +84,8 @@ class App: #the main class for the main window
         self.radio2.deselect()
         self.radio1.grid(row = 1, column = 0, sticky="w")
         self.radio2.grid(row = 2, column = 0, sticky = "w")
-        self.entry2 = Entry(master, state=DISABLED);
-        self.entry2.grid(row = 2, column = 1);
+        self.entry2 = Entry(master, state=DISABLED)
+        self.entry2.grid(row = 2, column = 1)
 
         self.webcamdevices = Webcam.listCam()
         
@@ -105,11 +105,11 @@ class App: #the main class for the main window
         self.startButton.grid(row = 4, column = 0, columnspan = 2)
 
         self.recording = False
-        self.proc = None;
-        self.recorder = recordFile.recorder();
+        self.proc = None
+        self.recorder = recordFile.recorder()
         self.master = master
         self.mergeProcess = None
-        self.pollClosed();
+        self.pollClosed()
 
     def pollClosed(self):
         if self.recording == True:
@@ -138,10 +138,10 @@ class App: #the main class for the main window
     def startRecord(self):
         if self.recording == False:
             self.startButton.config(text="Stop Recording")
-            self.filename = self.entry1.get();
-            self.entry1.config(state = DISABLED);
-            self.radio1.config(state = DISABLED);
-            self.radio2.config(state = DISABLED);
+            self.filename = self.entry1.get()
+            self.entry1.config(state = DISABLED)
+            self.radio1.config(state = DISABLED)
+            self.radio2.config(state = DISABLED)
             self.deviceselector.config(state = DISABLED)
             self.master.title(string = "Screen Recorder (Recording...)")
             try:
@@ -149,21 +149,21 @@ class App: #the main class for the main window
             except FileExistsError:
                 pass
             if self.what == "title":
-                self.entry2.config(state = DISABLED);
+                self.entry2.config(state = DISABLED)
             self.recording = True
             startupinfo = subprocess.STARTUPINFO()
             startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
             startupinfo.wShowWindow = subprocess.SW_HIDE
             if self.what == "title":
-                self.proc = subprocess.Popen(args=['ffmpeg.exe','-f','gdigrab','-i',str("title="+self.entry2.get()),'-f','dshow','-i','audio=Microphone (Realtek High Definition Audio)','-y','-c:v','mpeg4','-qscale:v','7','tmp/tmp.avi'], startupinfo=startupinfo)
+                self.proc = subprocess.Popen(args=['ffmpeg.exe','-f','gdigrab','-i',str("title="+self.entry2.get()),'-y','-c:v','mpeg4','-qscale:v','7','tmp/tmp.avi'], startupinfo=startupinfo)
             else:
-                self.proc = subprocess.Popen(args=['ffmpeg.exe','-f','gdigrab','-i',"desktop",'-f','dshow','-i','audio=Microphone (Realtek High Definition Audio)','-y','-c:v','mpeg4','-qscale:v','7','tmp/tmp.avi'], startupinfo=startupinfo)
+                self.proc = subprocess.Popen(args=['ffmpeg.exe','-f','gdigrab','-i',"desktop",'-y','-c:v','mpeg4','-qscale:v','7','tmp/tmp.avi'], startupinfo=startupinfo)
             #self.recorder.record(self.filename)
             self.recordcam.config(state = DISABLED)
             if self.rcchecked == True:
                 self.webcamrecorder.setDevice(str(self.devicename.get()))
-                self.webcamrecorder.startCapture("webcamtmp.mp4");
-            root.grab_set();
+                self.webcamrecorder.startCapture("webcamtmp.mp4")
+            root.grab_set()
         elif self.recording == True:
             defaultFile = self.filename
             self.entry1.config(state = NORMAL)
@@ -174,12 +174,12 @@ class App: #the main class for the main window
             if self.what == "title":
                 self.entry2.config(state = NORMAL)
             available = False
-            fileNum = 0;
+            fileNum = 0
             self.recording = False
             self.proc.terminate()
             #self.recorder.stop_recording();
             if self.rcchecked:
-                self.webcamrecorder.stopCapture();
+                self.webcamrecorder.stopCapture()
             try:
                 os.mkdir("ScreenCaptures")
             except FileExistsError:
@@ -207,9 +207,8 @@ class App: #the main class for the main window
                 self.entry1.delete(0,END)
                 self.entry1.insert(END,defaultFile)
             os.chdir("../")
-            
+
 root = Tk()
 
 app = App(root)
-root.mainloop();
-
+root.mainloop()
