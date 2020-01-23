@@ -30,18 +30,18 @@ WAVE_OUTPUT_FILENAME = "tmp/tmp.wav"
 
 class recorder:
     def __init__(self):
-        self.going = False;
-        self.process = None;
+        self.going = False
+        self.process = None
         self.filename = "ScreenCapture.mpg"
     def record(self,filename):
         try:
             if self.process.is_alive():
-                self.going = False;
+                self.going = False
         except AttributeError:
             print("test")
-        self.process = threading.Thread(target=self._record);
+        self.process = threading.Thread(target=self._record)
         self.process.start()
-        self.filename = filename;
+        self.filename = filename
     def _record(self):
         p = pyaudio.PyAudio()
         stream = p.open(format=FORMAT,
@@ -54,7 +54,7 @@ class recorder:
 
         frames = []
 
-        self.going = True;
+        self.going = True
         
         while self.going:
             data = stream.read(CHUNK)
@@ -75,5 +75,5 @@ class recorder:
         
 
     def stop_recording(self):
-        self.going = False;
+        self.going = False
         

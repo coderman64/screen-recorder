@@ -1,7 +1,7 @@
 """
     A component of ScreenRecorder that allows one to use ffmpeg.exe to capture
     video from a DirectShow device.
-    Copyright (C) 2016  coderman64
+    Copyright (C) 2018 coderman64
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
+"""ffmpeg.exe -i master_video.mp4 -vf "movie=smaller_inner_video.mp4, scale=800:-1 [inner]; 
+[in][inner] overlay=70:70 [out]" completed.mp4"""
 
 import subprocess
 from threading import Thread
@@ -52,7 +54,7 @@ class capturer:
     def startCapture(self,location):
         global startupinfo
         #print(self.devicename)
-        self.captureprocess = subprocess.Popen(["ffmpeg","-f","dshow","-i","video="+self.devicename+"",location], startupinfo = startupinfo)
+        self.captureprocess = subprocess.Popen(args=["ffmpeg.exe","-f","dshow","-i","video="+self.devicename+"","-y",'-c:v','mpeg4','-qscale:v','7',location],startupinfo=startupinfo)
     def stopCapture(self):
         self.captureprocess.terminate()
     def setDevice(self,devicename):

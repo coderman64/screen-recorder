@@ -108,3 +108,6 @@ tmp/
 
 #ffmpeg
 ffmpeg.exe
+
+#a script I use to make development easier
+openCode.bat

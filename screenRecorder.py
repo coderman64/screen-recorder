@@ -1,6 +1,6 @@
 """
     ScreenRecorder.py is a small, Windows app that records video from your screen and audio from the default microphone
-    Copyright (C) 2016  coderman64
+    Copyright (C) 2018  coderman64
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -155,14 +155,14 @@ class App: #the main class for the main window
             startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
             startupinfo.wShowWindow = subprocess.SW_HIDE
             if self.what == "title":
-                self.proc = subprocess.Popen(args=['ffmpeg.exe','-f','gdigrab','-i',str("title="+self.entry2.get()),'-y','-c:v','mpeg4','-qscale:v','7','tmp/tmp.avi'], startupinfo=startupinfo)
+                self.proc = subprocess.Popen(args=['ffmpeg.exe','-f','gdigrab','-i',str("title="+self.entry2.get()),'-framerate','30','-y','-c:v','mpeg4','-qscale:v','7','tmp/tmp.mkv'], startupinfo=startupinfo)
             else:
-                self.proc = subprocess.Popen(args=['ffmpeg.exe','-f','gdigrab','-i',"desktop",'-y','-c:v','mpeg4','-qscale:v','7','tmp/tmp.avi'], startupinfo=startupinfo)
-            #self.recorder.record(self.filename)
+                self.proc = subprocess.Popen(args=['ffmpeg.exe','-f','gdigrab','-i',"desktop",'-framerate','30','-y','-c:v','mpeg4','-qscale:v','7','tmp/tmp.mkv'], startupinfo=startupinfo)
+            self.recorder.record("tmp/tmp.wav")
             self.recordcam.config(state = DISABLED)
             if self.rcchecked == True:
                 self.webcamrecorder.setDevice(str(self.devicename.get()))
-                self.webcamrecorder.startCapture("webcamtmp.mp4")
+                self.webcamrecorder.startCapture("tmp/webcamtmp.mkv")
             root.grab_set()
         elif self.recording == True:
             defaultFile = self.filename
@@ -177,7 +177,7 @@ class App: #the main class for the main window
             fileNum = 0
             self.recording = False
             self.proc.terminate()
-            #self.recorder.stop_recording();
+            self.recorder.stop_recording()
             if self.rcchecked:
                 self.webcamrecorder.stopCapture()
             try:
@@ -190,7 +190,11 @@ class App: #the main class for the main window
             startupinfo = subprocess.STARTUPINFO()
             startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
             startupinfo.wShowWindow = subprocess.SW_HIDE
-            self.mergeProcess = subprocess.Popen(args= ["ffmpeg","-i",'tmp/tmp.avi',"-shortest",'-y',"ScreenCaptures/"+self.filename], startupinfo=startupinfo)
+            if self.rcchecked:
+                self.mergeProcess = subprocess.Popen(args= ["ffmpeg","-i",'tmp/tmp.mkv','-i','tmp/tmp.wav','-i','tmp/webcamtmp.mkv','-filter_complex','[2:v] scale=640:-1 [inner]; [0:0][inner] overlay=0:0 [out]',"-shortest",'-map','[out]','-y',"ScreenCaptures/"+self.filename])
+            else:
+                self.mergeProcess = subprocess.Popen(args= ["ffmpeg","-i",'tmp/tmp.mkv','-i','tmp/tmp.wav',"-shortest",'-y',"ScreenCaptures/"+self.filename], startupinfo=startupinfo)
+
 
             os.chdir("ScreenCaptures")
             while available == False:
