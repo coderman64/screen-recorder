@@ -1,6 +1,6 @@
 """
     ScreenRecorder.py is a small, Windows app that records video from your screen and audio from the default microphone
-    Copyright (C) 2018  coderman64
+    Copyright (C) 2020  coderman64
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@ import os
 import recordFile, Webcam
 
 class Alert(Toplevel):
-    
+    """Represents a simple alert dialogue. Currently unused, may be removed later."""
     def __init__(self, parent):
         Toplevel.__init__(self, parent)
         self.transient(parent)
@@ -32,7 +32,7 @@ class Alert(Toplevel):
 
         self.result = None
 
-        self.OK = Button(self, text = "OK", width=10, command = self.ok, default=ACTIVE)
+        self.OK = Button(self, text = "OK", width=10, command = self.test, default=ACTIVE)
         self.OK.pack()
         self.bind("<Return>", self.test)
         self.grab_set()
@@ -43,7 +43,7 @@ class Alert(Toplevel):
                                   parent.winfo_rooty()+50))
         self.wait_window(self)
     def test(self):
-        pass
+        self.destroy()
 
 class App(Tk): #the main class for the main window
     def __init__(self):
@@ -59,20 +59,25 @@ class App(Tk): #the main class for the main window
         label1.grid(row = 0, column = 0, sticky = "")
         self.entry1 = Entry(self)
         self.entry1.grid(row = 0, column = 1)
-        defaultFile = "ScreenCapture.mp4"
-        available = False
-        fileNum = 0
+
+        # ensure the existance of the "ScreenCaptures" directory
         try:
             os.mkdir("ScreenCaptures")
         except FileExistsError:
             pass
         os.chdir("ScreenCaptures")
+
+        # find a default file name that is currently available.
+        defaultFile = "ScreenCapture.mp4"
+        available = False
+        fileNum = 0
         while available == False:
-            matches = 0
+            hasMatch = False
             for item in os.listdir():
                 if item == defaultFile:
-                    matches += 1
-            if matches == 0:
+                    hasMatch = True
+                    break
+            if not hasMatch:
                 available = True
             else:
                 fileNum += 1
@@ -105,17 +110,24 @@ class App(Tk): #the main class for the main window
 
         # a drop-down allowing you to select the webcam device from the available directshow capture devices
         self.devicename = StringVar(self)
-        self.devicename.set(self.webcamdevices[0])
-        self.deviceselector = OptionMenu(self, self.devicename, *self.webcamdevices)
-        self.deviceselector.config(state=DISABLED)
-        self.deviceselector.grid(row = 3, column = 1)
+        if self.webcamdevices:
+            self.devicename.set(self.webcamdevices[0])
+            self.deviceselector = OptionMenu(self, self.devicename, *self.webcamdevices)
+            self.deviceselector.config(state=DISABLED)
+            self.deviceselector.grid(row = 3, column = 1)
+        else:
+            self.devicename.set("NO DEVICES AVAILABLE")
+            self.recordcam.config(state=DISABLED)
+            self.deviceselector = OptionMenu(self, self.devicename, "NO DEVICES AVAILABLE")
+            self.deviceselector.config(state=DISABLED)
+            self.deviceselector.grid(row = 3, column = 1)
         
         # the "start recording" button
         self.startButton = Button(self, text="Start Recording", command = self.startRecord)
         self.startButton.grid(row = 4, column = 0, columnspan = 2)
 
         # some variables
-        self.recording = False      # are we recording
+        self.recording = False      # are we recording?
         self.proc = None            # the popen object for ffmpeg (during screenrecord)
         self.recorder = recordFile.recorder()   # the "recorder" object for audio (see recordFile.py)
         self.master = self          # legacy hack, just in case...
@@ -140,10 +152,12 @@ class App(Tk): #the main class for the main window
         """Called when the "desktop" radio button is pressed"""
         self.entry2.config(state=DISABLED)
         self.what = "desktop"
+
     def enDis1(self):
         """Called when the "window title" radio button is pressed"""
         self.entry2.config(state = NORMAL)
         self.what = "title"
+
     def checkboxChanged(self):
         """Called when the "record webcam" checkbox is checked or unchecked."""
         self.rcchecked = not self.rcchecked
@@ -151,22 +165,30 @@ class App(Tk): #the main class for the main window
             self.deviceselector.config(state = NORMAL)
         else:
             self.deviceselector.config(state = DISABLED)
+
     def startRecord(self):
         """toggles recording. Will start conversion subprocess on recording completion"""
         if self.recording == False:
+            # change the window
+            self.title(string = "Screen Recorder (Recording...)")
             self.startButton.config(text="Stop Recording")
             self.filename = self.entry1.get()
+
+            # disable interface
             self.entry1.config(state = DISABLED)
             self.radio1.config(state = DISABLED)
             self.radio2.config(state = DISABLED)
             self.deviceselector.config(state = DISABLED)
-            self.title(string = "Screen Recorder (Recording...)")
+            if self.what == "title":
+                self.entry2.config(state = DISABLED)
+
+            # ensure the existence of the "tmp" directory
             try:
                 os.mkdir("tmp")
             except FileExistsError:
                 pass
-            if self.what == "title":
-                self.entry2.config(state = DISABLED)
+
+            # start screen recording process
             self.recording = True
             startupinfo = subprocess.STARTUPINFO()
             startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
@@ -175,35 +197,51 @@ class App(Tk): #the main class for the main window
                 self.proc = subprocess.Popen(args=['ffmpeg.exe','-f','gdigrab','-i',str("title="+self.entry2.get()),'-framerate','30','-y','-c:v','mpeg4','-qscale:v','7','tmp/tmp.mkv'], startupinfo=startupinfo)
             else:
                 self.proc = subprocess.Popen(args=['ffmpeg.exe','-f','gdigrab','-i',"desktop",'-framerate','30','-y','-c:v','mpeg4','-qscale:v','7','tmp/tmp.mkv'], startupinfo=startupinfo)
+            
+            # start audio recording
             self.recorder.record("tmp/tmp.wav")
+
+            # start webcam recording, if checked
             self.recordcam.config(state = DISABLED)
-            if self.rcchecked == True:
+            if self.rcchecked and self.webcamdevices:
                 self.webcamrecorder.setDevice(str(self.devicename.get()))
                 self.webcamrecorder.startCapture("tmp/webcamtmp.mkv")
-            self.grab_set()
+            
+            # minimize the window to get it out of the way of the recording
+            self.iconify()
         elif self.recording == True:
             defaultFile = self.filename
+
+            # re-enable interface
             self.entry1.config(state = NORMAL)
             self.radio1.config(state = NORMAL)
             self.radio2.config(state = NORMAL)
-            self.recordcam.config(state = NORMAL)
-            self.deviceselector.config(state = NORMAL)
+            if self.webcamdevices:
+                self.recordcam.config(state = NORMAL)
+                if self.rcchecked:
+                    self.deviceselector.config(state = NORMAL)
             if self.what == "title":
                 self.entry2.config(state = NORMAL)
+            
             available = False
             fileNum = 0
+
+            # stop all recording processes
             self.recording = False
             self.proc.terminate()
             self.recorder.stop_recording()
-            if self.rcchecked:
+            if self.rcchecked and self.webcamdevices:
                 self.webcamrecorder.stopCapture()
             try:
                 os.mkdir("ScreenCaptures")
             except FileExistsError:
                 pass
+
+            # change the window title and button text to reflect the current process
             self.title(string = "Screen Recorder (converting...)")
             self.startButton.config(text="converting your previous recording, please wait...", state = DISABLED)
             
+            # start the video conversion process
             startupinfo = subprocess.STARTUPINFO()
             startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
             startupinfo.wShowWindow = subprocess.SW_HIDE
@@ -212,21 +250,22 @@ class App(Tk): #the main class for the main window
             else:
                 self.mergeProcess = subprocess.Popen(args= ["ffmpeg","-i",'tmp/tmp.mkv','-i','tmp/tmp.wav',"-shortest",'-y',"ScreenCaptures/"+self.filename], startupinfo=startupinfo)
 
-
+            # change the screen capture name to something that is not taken
             os.chdir("ScreenCaptures")
-            while available == False:
+            while True:
                 matches = 0
                 for item in os.listdir():
                     if item == defaultFile:
                         matches += 1
                 if matches == 0:
-                    available = True
+                    self.entry1.delete(0,END)
+                    self.entry1.insert(END,defaultFile)
+                    break
                 else:
                     fileNum += 1
                     file = self.filename.split(".")
                     defaultFile = file[0].rstrip("1234567890")+str(fileNum)+"."+file[1]
-                self.entry1.delete(0,END)
-                self.entry1.insert(END,defaultFile)
+
             os.chdir("../")
 
 app = App()
