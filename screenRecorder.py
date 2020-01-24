@@ -25,7 +25,6 @@ import recordFile, Webcam
 class Alert(Toplevel):
     
     def __init__(self, parent):
-
         Toplevel.__init__(self, parent)
         self.transient(parent)
 
@@ -46,12 +45,19 @@ class Alert(Toplevel):
     def test(self):
         pass
 
-class App: #the main class for the main window
-    def __init__(self, master):
-        
-        label1 = Label(master, text="File Name:")
+class App(Tk): #the main class for the main window
+    def __init__(self):
+        Tk.__init__(self)
+
+        # window properties
+        self.title(string = "Screen Recorder")
+        self.iconbitmap("icon.ico")
+        self.resizable(width = False, height = False)
+
+        # file name
+        label1 = Label(self, text="File Name:")
         label1.grid(row = 0, column = 0, sticky = "")
-        self.entry1 = Entry(master)
+        self.entry1 = Entry(self)
         self.entry1.grid(row = 0, column = 1)
         defaultFile = "ScreenCapture.mp4"
         available = False
@@ -73,69 +79,80 @@ class App: #the main class for the main window
                 defaultFile = "ScreenCapture"+str(fileNum)+".mp4"
         os.chdir("..")
         self.entry1.insert(END,defaultFile)
-        master.title(string = "Screen Recorder")
-        master.iconbitmap("icon.ico")
-        master.resizable(width = False, height = False)
 
+        # a button?
+        self.settButton = Button(self)
+
+        # radio buttons determine what to record
         self.what = "desktop"
-        self.radio2 = Radiobutton(master, text="record the window with the title of: ", variable=self.what, value = "title", command = self.enDis1)
-        self.radio1 = Radiobutton(master, text="record the entire desktop", variable=self.what, value = "desktop", command = self.enDis)
+        self.radio2 = Radiobutton(self, text="record the window with the title of: ", variable=self.what, value = "title", command = self.enDis1)
+        self.radio1 = Radiobutton(self, text="record the entire desktop", variable=self.what, value = "desktop", command = self.enDis)
         self.radio1.select()
         self.radio2.deselect()
         self.radio1.grid(row = 1, column = 0, sticky="w")
         self.radio2.grid(row = 2, column = 0, sticky = "w")
-        self.entry2 = Entry(master, state=DISABLED)
+        self.entry2 = Entry(self, state=DISABLED)
         self.entry2.grid(row = 2, column = 1)
 
+        # initialize webcam
         self.webcamdevices = Webcam.listCam()
-        
         self.webcamrecorder = Webcam.capturer("")
         
+        # "record from webcam" checkbox
         self.rcchecked = False
-        self.recordcam = Checkbutton(master, text="Record from webcam", command = self.checkboxChanged)
+        self.recordcam = Checkbutton(self, text="Record from webcam", command = self.checkboxChanged)
         self.recordcam.grid(row = 3, column = 0)
 
-        self.devicename = StringVar(master)
+        # a drop-down allowing you to select the webcam device from the available directshow capture devices
+        self.devicename = StringVar(self)
         self.devicename.set(self.webcamdevices[0])
-        self.deviceselector = OptionMenu(master, self.devicename, *self.webcamdevices)
+        self.deviceselector = OptionMenu(self, self.devicename, *self.webcamdevices)
         self.deviceselector.config(state=DISABLED)
         self.deviceselector.grid(row = 3, column = 1)
         
-        self.startButton = Button(master, text="Start Recording", command = self.startRecord)
+        # the "start recording" button
+        self.startButton = Button(self, text="Start Recording", command = self.startRecord)
         self.startButton.grid(row = 4, column = 0, columnspan = 2)
 
-        self.recording = False
-        self.proc = None
-        self.recorder = recordFile.recorder()
-        self.master = master
-        self.mergeProcess = None
+        # some variables
+        self.recording = False      # are we recording
+        self.proc = None            # the popen object for ffmpeg (during screenrecord)
+        self.recorder = recordFile.recorder()   # the "recorder" object for audio (see recordFile.py)
+        self.master = self          # legacy hack, just in case...
+        self.mergeProcess = None    # the popen object for ffmpeg (while merging video and audio files)
+
+        # start the ffmpeg monitoring callback
         self.pollClosed()
 
     def pollClosed(self):
-        if self.recording == True:
+        """callback that repeats itself every 100ms. Automatically determines if ffmpeg is still running."""
+        if self.recording:
             if self.proc.poll() != None:
-                print("Something exploded!")
+                print("A problem has been detected with the ffmpeg subprocess")
                 self.startRecord()
         if self.mergeProcess and self.recording == False:
             if self.mergeProcess.poll() != None:
                 self.startButton.config(text="Start Recording", state = NORMAL)
-                self.master.title(string = "Screen Recorder")
-        root.after(100, self.pollClosed)
+                self.title(string = "Screen Recorder")
+        self.after(100, self.pollClosed)
 
     def enDis(self):
+        """Called when the "desktop" radio button is pressed"""
         self.entry2.config(state=DISABLED)
         self.what = "desktop"
     def enDis1(self):
+        """Called when the "window title" radio button is pressed"""
         self.entry2.config(state = NORMAL)
         self.what = "title"
     def checkboxChanged(self):
+        """Called when the "record webcam" checkbox is checked or unchecked."""
         self.rcchecked = not self.rcchecked
-        #print("Checkbox changed to " + str(self.rcchecked))
         if self.rcchecked:
             self.deviceselector.config(state = NORMAL)
         else:
             self.deviceselector.config(state = DISABLED)
     def startRecord(self):
+        """toggles recording. Will start conversion subprocess on recording completion"""
         if self.recording == False:
             self.startButton.config(text="Stop Recording")
             self.filename = self.entry1.get()
@@ -143,7 +160,7 @@ class App: #the main class for the main window
             self.radio1.config(state = DISABLED)
             self.radio2.config(state = DISABLED)
             self.deviceselector.config(state = DISABLED)
-            self.master.title(string = "Screen Recorder (Recording...)")
+            self.title(string = "Screen Recorder (Recording...)")
             try:
                 os.mkdir("tmp")
             except FileExistsError:
@@ -163,7 +180,7 @@ class App: #the main class for the main window
             if self.rcchecked == True:
                 self.webcamrecorder.setDevice(str(self.devicename.get()))
                 self.webcamrecorder.startCapture("tmp/webcamtmp.mkv")
-            root.grab_set()
+            self.grab_set()
         elif self.recording == True:
             defaultFile = self.filename
             self.entry1.config(state = NORMAL)
@@ -184,7 +201,7 @@ class App: #the main class for the main window
                 os.mkdir("ScreenCaptures")
             except FileExistsError:
                 pass
-            self.master.title(string = "Screen Recorder (converting...)")
+            self.title(string = "Screen Recorder (converting...)")
             self.startButton.config(text="converting your previous recording, please wait...", state = DISABLED)
             
             startupinfo = subprocess.STARTUPINFO()
@@ -212,7 +229,5 @@ class App: #the main class for the main window
                 self.entry1.insert(END,defaultFile)
             os.chdir("../")
 
-root = Tk()
-
-app = App(root)
-root.mainloop()
+app = App()
+app.mainloop()

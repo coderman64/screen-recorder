@@ -1,0 +1,5 @@
+- commenting/organization
+- framerate options
+- audio options
+- add options dialogue
+- update .exe build
