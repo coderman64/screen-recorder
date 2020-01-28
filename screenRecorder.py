@@ -18,9 +18,12 @@
 
 import subprocess
 from tkinter import *
+from tkinter.ttk import Button,Entry,Radiobutton,Checkbutton
 from time import sleep
 import os
 import recordFile, Webcam
+from cmdGen import cmdGen
+from sr_settings import settingsWin
 
 class Alert(Toplevel):
     """Represents a simple alert dialogue. Currently unused, may be removed later."""
@@ -54,11 +57,13 @@ class App(Tk): #the main class for the main window
         self.iconbitmap("icon.ico")
         self.resizable(width = False, height = False)
 
+        self.cmdGen = cmdGen()  # create a command generator object to store settings 
+
         # file name
         label1 = Label(self, text="File Name:")
         label1.grid(row = 0, column = 0, sticky = "")
         self.entry1 = Entry(self)
-        self.entry1.grid(row = 0, column = 1)
+        self.entry1.grid(row = 0, column = 1,sticky="ew")
 
         # ensure the existance of the "ScreenCaptures" directory
         try:
@@ -85,27 +90,23 @@ class App(Tk): #the main class for the main window
         os.chdir("..")
         self.entry1.insert(END,defaultFile)
 
-        # a button?
-        self.settButton = Button(self)
-
         # radio buttons determine what to record
-        self.what = "desktop"
+        self.what = StringVar()
+        self.what.set("desktop")
         self.radio2 = Radiobutton(self, text="record the window with the title of: ", variable=self.what, value = "title", command = self.enDis1)
         self.radio1 = Radiobutton(self, text="record the entire desktop", variable=self.what, value = "desktop", command = self.enDis)
-        self.radio1.select()
-        self.radio2.deselect()
         self.radio1.grid(row = 1, column = 0, sticky="w")
         self.radio2.grid(row = 2, column = 0, sticky = "w")
         self.entry2 = Entry(self, state=DISABLED)
-        self.entry2.grid(row = 2, column = 1)
+        self.entry2.grid(row = 2, column = 1,sticky="ew")
 
         # initialize webcam
         self.webcamdevices = Webcam.listCam()
         self.webcamrecorder = Webcam.capturer("")
         
         # "record from webcam" checkbox
-        self.rcchecked = False
-        self.recordcam = Checkbutton(self, text="Record from webcam", command = self.checkboxChanged)
+        self.rcchecked = IntVar()
+        self.recordcam = Checkbutton(self, text="Record from webcam", command = self.checkboxChanged,variable=self.rcchecked)
         self.recordcam.grid(row = 3, column = 0)
 
         # a drop-down allowing you to select the webcam device from the available directshow capture devices
@@ -122,19 +123,26 @@ class App(Tk): #the main class for the main window
             self.deviceselector.config(state=DISABLED)
             self.deviceselector.grid(row = 3, column = 1)
         
+        self.opButton = Button(self, text="⚙ Additional Options...",command = self.openSettings)
+        self.opButton.grid(row = 4, column=1, sticky='e')
+
         # the "start recording" button
-        self.startButton = Button(self, text="Start Recording", command = self.startRecord)
-        self.startButton.grid(row = 4, column = 0, columnspan = 2)
+        self.startButton = Button(self, text="⏺ Start Recording", command = self.startRecord)
+        self.startButton.grid(row = 5, column = 0, columnspan = 2)
+
 
         # some variables
         self.recording = False      # are we recording?
         self.proc = None            # the popen object for ffmpeg (during screenrecord)
         self.recorder = recordFile.recorder()   # the "recorder" object for audio (see recordFile.py)
-        self.master = self          # legacy hack, just in case...
         self.mergeProcess = None    # the popen object for ffmpeg (while merging video and audio files)
+
 
         # start the ffmpeg monitoring callback
         self.pollClosed()
+
+    def openSettings(self):
+        self.settings = settingsWin(self,self.cmdGen)
 
     def pollClosed(self):
         """callback that repeats itself every 100ms. Automatically determines if ffmpeg is still running."""
@@ -144,24 +152,24 @@ class App(Tk): #the main class for the main window
                 self.startRecord()
         if self.mergeProcess and self.recording == False:
             if self.mergeProcess.poll() != None:
-                self.startButton.config(text="Start Recording", state = NORMAL)
+                self.startButton.config(text="⏺ Start Recording", state = NORMAL)
                 self.title(string = "Screen Recorder")
         self.after(100, self.pollClosed)
 
     def enDis(self):
         """Called when the "desktop" radio button is pressed"""
         self.entry2.config(state=DISABLED)
-        self.what = "desktop"
+        # self.what.set("desktop")
 
     def enDis1(self):
         """Called when the "window title" radio button is pressed"""
         self.entry2.config(state = NORMAL)
-        self.what = "title"
+        # self.what.set("title")
 
     def checkboxChanged(self):
         """Called when the "record webcam" checkbox is checked or unchecked."""
-        self.rcchecked = not self.rcchecked
-        if self.rcchecked:
+        #self.rcchecked = not self.rcchecked
+        if self.rcchecked.get():
             self.deviceselector.config(state = NORMAL)
         else:
             self.deviceselector.config(state = DISABLED)
@@ -171,7 +179,7 @@ class App(Tk): #the main class for the main window
         if self.recording == False:
             # change the window
             self.title(string = "Screen Recorder (Recording...)")
-            self.startButton.config(text="Stop Recording")
+            self.startButton.config(text="⏹️ Stop Recording")
             self.filename = self.entry1.get()
 
             # disable interface
@@ -179,7 +187,7 @@ class App(Tk): #the main class for the main window
             self.radio1.config(state = DISABLED)
             self.radio2.config(state = DISABLED)
             self.deviceselector.config(state = DISABLED)
-            if self.what == "title":
+            if self.what.get() == "title":
                 self.entry2.config(state = DISABLED)
 
             # ensure the existence of the "tmp" directory
@@ -193,17 +201,19 @@ class App(Tk): #the main class for the main window
             startupinfo = subprocess.STARTUPINFO()
             startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
             startupinfo.wShowWindow = subprocess.SW_HIDE
-            if self.what == "title":
-                self.proc = subprocess.Popen(args=['ffmpeg.exe','-f','gdigrab','-i',str("title="+self.entry2.get()),'-framerate','30','-y','-c:v','mpeg4','-qscale:v','7','tmp/tmp.mkv'], startupinfo=startupinfo)
-            else:
-                self.proc = subprocess.Popen(args=['ffmpeg.exe','-f','gdigrab','-i',"desktop",'-framerate','30','-y','-c:v','mpeg4','-qscale:v','7','tmp/tmp.mkv'], startupinfo=startupinfo)
             
+            self.cmdGen.setFps(60)
+            self.cmdGen.setEncode('nvenc_h264') # CPU: mpeg4 // NVIDIA: h264_nvenc // AMD: no.
+            self.cmdGen.setSource(self.what.get()=="title",self.entry2.get())
+            command = self.cmdGen.getCmd("tmp/tmp.mkv")
+            self.proc = subprocess.Popen(args=command, startupinfo=startupinfo)
+
             # start audio recording
             self.recorder.record("tmp/tmp.wav")
 
             # start webcam recording, if checked
             self.recordcam.config(state = DISABLED)
-            if self.rcchecked and self.webcamdevices:
+            if self.rcchecked.get() and self.webcamdevices:
                 self.webcamrecorder.setDevice(str(self.devicename.get()))
                 self.webcamrecorder.startCapture("tmp/webcamtmp.mkv")
             
@@ -218,9 +228,9 @@ class App(Tk): #the main class for the main window
             self.radio2.config(state = NORMAL)
             if self.webcamdevices:
                 self.recordcam.config(state = NORMAL)
-                if self.rcchecked:
+                if self.rcchecked.get():
                     self.deviceselector.config(state = NORMAL)
-            if self.what == "title":
+            if self.what.get() == "title":
                 self.entry2.config(state = NORMAL)
             
             available = False
@@ -230,7 +240,7 @@ class App(Tk): #the main class for the main window
             self.recording = False
             self.proc.terminate()
             self.recorder.stop_recording()
-            if self.rcchecked and self.webcamdevices:
+            if self.rcchecked.get() and self.webcamdevices:
                 self.webcamrecorder.stopCapture()
             try:
                 os.mkdir("ScreenCaptures")
@@ -245,7 +255,7 @@ class App(Tk): #the main class for the main window
             startupinfo = subprocess.STARTUPINFO()
             startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
             startupinfo.wShowWindow = subprocess.SW_HIDE
-            if self.rcchecked:
+            if self.rcchecked.get():
                 self.mergeProcess = subprocess.Popen(args= ["ffmpeg","-i",'tmp/tmp.mkv','-i','tmp/tmp.wav','-i','tmp/webcamtmp.mkv','-filter_complex','[2:v] scale=640:-1 [inner]; [0:0][inner] overlay=0:0 [out]',"-shortest",'-map','[out]','-y',"ScreenCaptures/"+self.filename])
             else:
                 self.mergeProcess = subprocess.Popen(args= ["ffmpeg","-i",'tmp/tmp.mkv','-i','tmp/tmp.wav',"-shortest",'-y',"ScreenCaptures/"+self.filename], startupinfo=startupinfo)

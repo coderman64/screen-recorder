@@ -1,5 +1,6 @@
 """
-    recordFile.py records audio from the default microphone in a background thread using pyaudio
+    recordFile.py records audio from the default microphone in a background 
+    thread using pyaudio.
     Copyright (C) 2016 coderman64
 
     This program is free software: you can redistribute it and/or modify
@@ -26,23 +27,24 @@ FORMAT = pyaudio.paInt16
 CHANNELS = 2
 RATE = 44100
 RECORD_SECONDS = 5
-WAVE_OUTPUT_FILENAME = "tmp/tmp.wav"
+# WAVE_OUTPUT_FILENAME = "tmp/tmp.wav"
 
 class recorder:
     def __init__(self):
-        self.going = False
-        self.process = None
-        self.filename = "ScreenCapture.mpg"
+        self.going = False      # is the process running?
+        self.process = None     # stores a reference to the background thread
+        self.filename = ""      # the name of the file to record to 
     def record(self,filename):
-        try:
-            if self.process.is_alive():
-                self.going = False
-        except AttributeError:
-            print("test")
+        # end the process before starting a new one
+        if self.process and self.process.is_alive():
+            self.going = False
+        
+        # start a recording thread
         self.process = threading.Thread(target=self._record)
         self.process.start()
         self.filename = filename
     def _record(self):
+        # initialize pyaudio
         p = pyaudio.PyAudio()
         stream = p.open(format=FORMAT,
                         channels=CHANNELS,
@@ -52,28 +54,29 @@ class recorder:
 
         print("* recording")
 
-        frames = []
+        frames = [] # stores audio data
 
-        self.going = True
+        self.going = True   # let the system know that we are running
         
-        while self.going:
+        while self.going:   # stream the audio into "frames"
             data = stream.read(CHUNK)
             frames.append(data)
 
         print("* done recording")
 
+        # stop recording
         stream.stop_stream()
         stream.close()
         p.terminate()
 
-        wf = wave.open(WAVE_OUTPUT_FILENAME, 'wb')
+        # write the audio data to a file (tmp/tmp.wav)
+        wf = wave.open(self.filename, 'wb')
         wf.setnchannels(CHANNELS)
         wf.setsampwidth(p.get_sample_size(FORMAT))
         wf.setframerate(RATE)
         wf.writeframes(b''.join(frames))
         wf.close()
         
-
     def stop_recording(self):
         self.going = False
         
