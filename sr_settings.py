@@ -84,11 +84,22 @@ class settingsWin(Toplevel):
 
         self.audioDevices = Listbox(self.audioOptions,selectmode="multiple")
         self.audioDevices.grid(row=2,column=0,sticky='news')
+
+        self.deviceIDList = []
         for i in range(self.audioRec.getDeviceCount()):
-            self.audioDevices.insert("end",self.audioRec.getAPIName(i)+" || "+self.audioRec.getDeviceName(i))
+            if self.audioRec.isInputDevice(i):
+                self.deviceIDList.append(i)
+                self.audioDevices.insert("end",self.audioRec.getAPIName(i)+" || "+self.audioRec.getDeviceName(i))
+                if i in self.audioRec.devices:
+                    print("SELECT")
+                    self.audioDevices.selection_set('end')
+        print("this is selected: "+str(self.audioDevices.curselection()))
 
         self.audInputVar.trace("w",self.audButtonChange)
-        self.audInputVar.set("default")
+        if self.audioRec.devices == [None]:
+            self.audInputVar.set("default")
+        else:
+            self.audInputVar.set("selected")
         
         self.notebook.add(self.audioOptions,text="Audio Options")
 
@@ -116,12 +127,20 @@ class settingsWin(Toplevel):
             self.cmdGen.config(encoder='mpeg4',hwaccel=None)
         elif self.hwaccVar.get() == "NVENC":
             self.cmdGen.config(encoder='h264_nvenc',hwaccel=None)
+        if self.audInputVar == "default":
+            self.audioRec.setToDefault()
+        else:
+            deviceList = []
+            for i in range(len(self.deviceIDList)):
+                if self.audioDevices.selection_includes(i):
+                    deviceList.append(self.deviceIDList[i])
+            print("AUD DEV LIST: "+str(deviceList))
+            self.audioRec.setToDevices(deviceList)
     def applyQuit(self):
         self.apply()
         self.destroy()
 
 if __name__ == "__main__":
-    print("TIKES")
     test = Tk()
     phil = settingsWin(test)
     test.mainloop()

@@ -15,6 +15,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
+import os
 
 class cmdGen:
     def __init__(self):
@@ -24,13 +25,18 @@ class cmdGen:
         self.hwaccel = None
         self.drawMouse = 1
         self.enableWebcam = False
-    def config(self,fps=None,source=None,encoder=None,hwaccel='unchanged',drawMouse=None,webcam=None):
+        self.audList = 0
+    def config(self,
+                fps=None,source=None,encoder=None,
+                hwaccel='unchanged',drawMouse=None,
+                webcam=None,audList=None):
         if fps: self.fps = fps
         if source: self.source = source
         if encoder: self.encoder = encoder
         if hwaccel != 'unchanged': self.hwaccel = hwaccel
         if drawMouse: self.drawMouse = 0 if not self.drawMouse else 1
         if webcam: self.enableWebcam = bool(webcam)
+        if audList: self.audList = audList
     def setSource(self,isWindow,windowName=""):
         if not isWindow:
             self.source = "desktop"
@@ -52,16 +58,18 @@ class cmdGen:
             finalCmd.extend(['-hwaccel',self.hwaccel])
         finalCmd.extend(['-draw_mouse',str(self.drawMouse)])
         finalCmd.extend(["-y", filename])
+        print(finalCmd)
         return finalCmd
     def getCvtCmd(self,filename):
             # if self.rcchecked.get():
             #     self.mergeProcess = subprocess.Popen(args= ["ffmpeg","-i",'tmp/tmp.mkv','-i','tmp/tmp.wav','-i','tmp/webcamtmp.mkv','-filter_complex','[2:v] scale=640:-1 [inner]; [0:0][inner] overlay=0:0 [out]',"-shortest",'-map','[out]','-y',"ScreenCaptures/"+self.filename])
             # else:
             #     self.mergeProcess = subprocess.Popen(args= ["ffmpeg","-i",'tmp/tmp.mkv','-i','tmp/tmp.wav',"-shortest",'-y',"ScreenCaptures/"+self.filename], startupinfo=startupinfo)
-
         print("ACK")
         finalCmd = ["ffmpeg.exe"]
-        finalCmd.extend(['-i','tmp/tmp.mkv','-i','tmp/tmp.wav'])
+        finalCmd.extend(['-i','tmp/tmp.mkv'])
+        for i in range(len(self.audList)):
+            finalCmd.extend(['-i','tmp/tmp_'+str(i)+'.wav'])
         # finalCmd.extend(['-c:v',self.encoder])
         if self.enableWebcam:
             finalCmd.extend(['-i','tmp/webcamtmp.mkv','-filter_complex','[2:v] scale=640:-1 [inner]; [0:0][inner] overlay=0:0 [out]','-map','[out]'])
@@ -71,6 +79,7 @@ class cmdGen:
         # if self.hwaccel: 
         #     finalCmd.extend(['-hwaccel',self.hwaccel])
         finalCmd.extend(["-y", filename])
+        print(finalCmd)
         return finalCmd
 
 if __name__ == "__main__":

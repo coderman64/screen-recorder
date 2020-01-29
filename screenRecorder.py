@@ -44,7 +44,7 @@ class App(Tk): #the main class for the main window
         if not ffmpegAvailable:
             self.withdraw()
             if messagebox.askyesno("FFmpeg Not Found","ffmpeg.exe could not be found in screen recorder's directory. Do you want to be redirected to the ffmpeg download website?"):
-                webbrowser.open("https://ffmpeg.zeranoe.com/builds/")
+                webbrowser.open_new_tab("https://ffmpeg.zeranoe.com/builds/")
             exit()
         self.cmdGen = cmdGen()  # create a command generator object to store settings 
 
@@ -126,10 +126,6 @@ class App(Tk): #the main class for the main window
         self.recorder = recordFile.recorder()   # the "recorder" object for audio (see recordFile.py)
         self.mergeProcess = None    # the popen object for ffmpeg (while merging video and audio files)
 
-        print("AUDIO DEVICE COUNT: "+str(self.recorder.getDeviceCount()))
-        for i in range(self.recorder.getDeviceCount()):
-            print("DEVICE "+str(i)+": "+self.recorder.getDeviceName(i)+" || "+self.recorder.getAPIName(i))
-
         # start the ffmpeg monitoring callback
         self.pollClosed()
 
@@ -140,7 +136,9 @@ class App(Tk): #the main class for the main window
         """callback that repeats itself every 100ms. Automatically determines if ffmpeg is still running."""
         if self.recording:
             if self.proc.poll() != None:
-                print("A problem has been detected with the ffmpeg subprocess")
+                self.startRecord()
+                messagebox.showerror("ffmpeg error","ffmpeg has stopped working. ERROR: \n"+str(self.proc.stderr.read()).replace('\\r\\n','\n'))
+            if self.recorder.error:
                 self.startRecord()
         if self.mergeProcess and self.recording == False:
             if self.mergeProcess.poll() != None:
@@ -199,7 +197,7 @@ class App(Tk): #the main class for the main window
             # self.cmdGen.setEncode('nvenc_h264') # CPU: mpeg4 // NVIDIA: h264_nvenc // AMD: no.
             self.cmdGen.setSource(self.what.get()=="title",self.entry2.get())
             command = self.cmdGen.getCmd("tmp/tmp.mkv")
-            self.proc = subprocess.Popen(args=command, startupinfo=startupinfo)
+            self.proc = subprocess.Popen(args=command, startupinfo=startupinfo,stderr=subprocess.PIPE)
 
             # start audio recording
             self.recorder.record("tmp/tmp.wav")
@@ -213,6 +211,7 @@ class App(Tk): #the main class for the main window
             # minimize the window to get it out of the way of the recording
             self.iconify()
         elif self.recording == True:
+            self.deiconify()
             defaultFile = self.filename
 
             # re-enable interface
@@ -232,7 +231,7 @@ class App(Tk): #the main class for the main window
 
             # stop all recording processes
             self.recording = False
-            self.proc.terminate()
+            self.proc.send_signal(subprocess.signal.CTRL_C_EVENT)
             self.recorder.stop_recording()
             if self.rcchecked.get() and self.webcamdevices:
                 self.webcamrecorder.stopCapture()
@@ -249,6 +248,7 @@ class App(Tk): #the main class for the main window
             startupinfo = subprocess.STARTUPINFO()
             startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
             startupinfo.wShowWindow = subprocess.SW_HIDE
+            self.cmdGen.config(audList=self.recorder.devices)
             command = self.cmdGen.getCvtCmd("ScreenCaptures/"+self.filename)
 
             self.mergeProcess = subprocess.Popen(args=command,startupinfo=startupinfo)
