@@ -22,31 +22,9 @@ from tkinter.ttk import Button,Entry,Radiobutton,Checkbutton
 from time import sleep
 import os
 import recordFile, Webcam
+import webbrowser
 from cmdGen import cmdGen
 from sr_settings import settingsWin
-
-class Alert(Toplevel):
-    """Represents a simple alert dialogue. Currently unused, may be removed later."""
-    def __init__(self, parent):
-        Toplevel.__init__(self, parent)
-        self.transient(parent)
-
-        self.parent = parent
-
-        self.result = None
-
-        self.OK = Button(self, text = "OK", width=10, command = self.test, default=ACTIVE)
-        self.OK.pack()
-        self.bind("<Return>", self.test)
-        self.grab_set()
-
-        self.protocol("WM_DELETE_WINDOW", self.cancel)
-
-        self.geometry("+%d+%d" % (parent.winfo_rootx()+50,
-                                  parent.winfo_rooty()+50))
-        self.wait_window(self)
-    def test(self):
-        self.destroy()
 
 class App(Tk): #the main class for the main window
     def __init__(self):
@@ -57,6 +35,14 @@ class App(Tk): #the main class for the main window
         self.iconbitmap("icon.ico")
         self.resizable(width = False, height = False)
 
+        ffmpegAvailable = False
+        for item in os.listdir():
+            if item == "ffmpeg.exe":
+                ffmpegAvailable = True
+                break
+        if not ffmpegAvailable:
+            if messagebox.askyesno("FFmpeg Not Found","ffmpeg.exe could not be found in the program's directory. Do you want to be redirected to the ffmpeg download website?"):
+                webbrowser.open("https://ffmpeg.zeranoe.com/builds/")
         self.cmdGen = cmdGen()  # create a command generator object to store settings 
 
         # file name
