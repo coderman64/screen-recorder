@@ -18,6 +18,7 @@
 
 import subprocess
 from tkinter import *
+from tkinter import messagebox
 from tkinter.ttk import Button,Entry,Radiobutton,Checkbutton
 from time import sleep
 import os
@@ -41,7 +42,8 @@ class App(Tk): #the main class for the main window
                 ffmpegAvailable = True
                 break
         if not ffmpegAvailable:
-            if messagebox.askyesno("FFmpeg Not Found","ffmpeg.exe could not be found in the program's directory. Do you want to be redirected to the ffmpeg download website?"):
+            self.withdraw()
+            if messagebox.askyesno("FFmpeg Not Found","ffmpeg.exe could not be found in screen recorder's directory. Do you want to be redirected to the ffmpeg download website?"):
                 webbrowser.open("https://ffmpeg.zeranoe.com/builds/")
             exit()
         self.cmdGen = cmdGen()  # create a command generator object to store settings 

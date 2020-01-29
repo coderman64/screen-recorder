@@ -20,8 +20,6 @@ from tkinter import *
 from tkinter.ttk import Notebook, Button, Radiobutton, Checkbutton
 from cmdGen import cmdGen
 
-print("HAS IMPORT")
-
 class settingsWin(Toplevel):
     def __init__(self, parent,sourceCmdGen,audioRec):
         Toplevel.__init__(self, parent)
