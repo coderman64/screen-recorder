@@ -1,1 +1,2 @@
 pyW .\screenRecorder.py
+exit
