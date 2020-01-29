@@ -22,20 +22,22 @@ class settingsWin(Toplevel):
         self.notebook = Notebook(self)
         self.notebook.grid(row=0,column=0,columnspan=4,sticky="nesw",padx=5,pady=5)
 
-        self.genFrame = Frame(self)
-        Label(self.genFrame,text="FPS: ").grid(row=0,column=0)
+        #self.genFrame = Frame(self)        
+        self.videoOptions = Frame(self)
+        self.videoOptions.columnconfigure(1,weight=1)
+
+        Label(self.videoOptions,text="Suggested FPS (Not guaranteed): ").grid(row=0,column=0)
 
         self.FPSVar = StringVar()
-        self.FPSspin = Spinbox(self.genFrame,from_=1,to=120,textvariable=self.FPSVar)
-        self.FPSspin.grid(row=0,column=1,sticky="ew")
+        self.FPSspin = Spinbox(self.videoOptions,from_=1,to=120,textvariable=self.FPSVar)
+        self.FPSspin.grid(row=0,column=1,sticky="ew",pady=5)
         self.FPSVar.set(self.cmdGen.fps)
 
-        self.notebook.insert("end",self.genFrame,text="General")
+        # self.notebook.insert("end",self.genFrame,text="General")
 
         self.hwaccVar = StringVar()
-        
-        self.videoOptions = Frame(self)
-        Label(self.videoOptions,text="Encoding (GPU encoding may improve perfomance):").grid(row=0,column=0,sticky="w")
+
+        Label(self.videoOptions,text="Encoding (GPU encoding may improve perfomance):").grid(row=1,column=0,columnspan=2,sticky="w")
         self.buttonCPU = Radiobutton(self.videoOptions,text="CPU-only encoder (all formats)",variable=self.hwaccVar,value="CPU")
         self.buttonCPU.grid(row=2,column=0,columnspan=2,sticky="w")
         self.buttonNVENC = Radiobutton(self.videoOptions,text="Nvidia NVENC GPU encoder (h.264 only)",variable=self.hwaccVar,value="NVENC")
