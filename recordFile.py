@@ -34,6 +34,7 @@ class recorder:
         self.going = False      # is the process running?
         self.process = None     # stores a reference to the background thread
         self.filename = ""      # the name of the file to record to 
+        self.p = pyaudio.PyAudio()
     def record(self,filename):
         # end the process before starting a new one
         if self.process and self.process.is_alive():
@@ -45,8 +46,7 @@ class recorder:
         self.filename = filename
     def _record(self):
         # initialize pyaudio
-        p = pyaudio.PyAudio()
-        stream = p.open(format=FORMAT,
+        stream = self.p.open(format=FORMAT,
                         channels=CHANNELS,
                         rate=RATE,
                         input=True,
@@ -67,16 +67,21 @@ class recorder:
         # stop recording
         stream.stop_stream()
         stream.close()
-        p.terminate()
+        self.p.terminate()
 
         # write the audio data to a file (tmp/tmp.wav)
         wf = wave.open(self.filename, 'wb')
         wf.setnchannels(CHANNELS)
-        wf.setsampwidth(p.get_sample_size(FORMAT))
+        wf.setsampwidth(self.p.get_sample_size(FORMAT))
         wf.setframerate(RATE)
         wf.writeframes(b''.join(frames))
         wf.close()
-        
+    def getDeviceCount(self):
+        return self.p.get_device_count()
+    def getDeviceName(self,deviceID):
+        return self.p.get_device_info_by_index(deviceID)["name"]
+    def getAPIName(self,deviceID):
+        return self.p.get_host_api_info_by_index(self.p.get_device_info_by_index(deviceID)["hostApi"])["name"]
     def stop_recording(self):
         self.going = False
         

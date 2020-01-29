@@ -23,12 +23,14 @@ class cmdGen:
         self.encoder = 'mpeg4'
         self.hwaccel = None
         self.drawMouse = 1
-    def config(self,fps=None,source=None,encoder=None,hwaccel='unchanged',drawMouse=None):
+        self.enableWebcam = False
+    def config(self,fps=None,source=None,encoder=None,hwaccel='unchanged',drawMouse=None,webcam=None):
         if fps: self.fps = fps
         if source: self.source = source
         if encoder: self.encoder = encoder
         if hwaccel != 'unchanged': self.hwaccel = hwaccel
         if drawMouse: self.drawMouse = 0 if not self.drawMouse else 1
+        if webcam: self.enableWebcam = bool(webcam)
     def setSource(self,isWindow,windowName=""):
         if not isWindow:
             self.source = "desktop"
@@ -49,6 +51,25 @@ class cmdGen:
         if self.hwaccel: 
             finalCmd.extend(['-hwaccel',self.hwaccel])
         finalCmd.extend(['-draw_mouse',str(self.drawMouse)])
+        finalCmd.extend(["-y", filename])
+        return finalCmd
+    def getCvtCmd(self,filename):
+            # if self.rcchecked.get():
+            #     self.mergeProcess = subprocess.Popen(args= ["ffmpeg","-i",'tmp/tmp.mkv','-i','tmp/tmp.wav','-i','tmp/webcamtmp.mkv','-filter_complex','[2:v] scale=640:-1 [inner]; [0:0][inner] overlay=0:0 [out]',"-shortest",'-map','[out]','-y',"ScreenCaptures/"+self.filename])
+            # else:
+            #     self.mergeProcess = subprocess.Popen(args= ["ffmpeg","-i",'tmp/tmp.mkv','-i','tmp/tmp.wav',"-shortest",'-y',"ScreenCaptures/"+self.filename], startupinfo=startupinfo)
+
+        print("ACK")
+        finalCmd = ["ffmpeg.exe"]
+        finalCmd.extend(['-i','tmp/tmp.mkv','-i','tmp/tmp.wav'])
+        # finalCmd.extend(['-c:v',self.encoder])
+        if self.enableWebcam:
+            finalCmd.extend(['-i','tmp/webcamtmp.mkv','-filter_complex','[2:v] scale=640:-1 [inner]; [0:0][inner] overlay=0:0 [out]','-map','[out]'])
+        finalCmd.extend(['-shortest'])
+        # if self.encoder == 'mpeg4':
+        #     finalCmd.extend(['-q:v','7'])
+        # if self.hwaccel: 
+        #     finalCmd.extend(['-hwaccel',self.hwaccel])
         finalCmd.extend(["-y", filename])
         return finalCmd
 

@@ -137,6 +137,9 @@ class App(Tk): #the main class for the main window
         self.recorder = recordFile.recorder()   # the "recorder" object for audio (see recordFile.py)
         self.mergeProcess = None    # the popen object for ffmpeg (while merging video and audio files)
 
+        print("AUDIO DEVICE COUNT: "+str(self.recorder.getDeviceCount()))
+        for i in range(self.recorder.getDeviceCount()):
+            print("DEVICE "+str(i)+": "+self.recorder.getDeviceName(i)+" || "+self.recorder.getAPIName(i))
 
         # start the ffmpeg monitoring callback
         self.pollClosed()
@@ -187,6 +190,7 @@ class App(Tk): #the main class for the main window
             self.radio1.config(state = DISABLED)
             self.radio2.config(state = DISABLED)
             self.deviceselector.config(state = DISABLED)
+            self.opButton.config(state = DISABLED)
             if self.what.get() == "title":
                 self.entry2.config(state = DISABLED)
 
@@ -202,8 +206,8 @@ class App(Tk): #the main class for the main window
             startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
             startupinfo.wShowWindow = subprocess.SW_HIDE
             
-            self.cmdGen.setFps(60)
-            self.cmdGen.setEncode('nvenc_h264') # CPU: mpeg4 // NVIDIA: h264_nvenc // AMD: no.
+            # self.cmdGen.setFps(60)
+            # self.cmdGen.setEncode('nvenc_h264') # CPU: mpeg4 // NVIDIA: h264_nvenc // AMD: no.
             self.cmdGen.setSource(self.what.get()=="title",self.entry2.get())
             command = self.cmdGen.getCmd("tmp/tmp.mkv")
             self.proc = subprocess.Popen(args=command, startupinfo=startupinfo)
@@ -226,6 +230,7 @@ class App(Tk): #the main class for the main window
             self.entry1.config(state = NORMAL)
             self.radio1.config(state = NORMAL)
             self.radio2.config(state = NORMAL)
+            self.opButton.config(state = NORMAL)
             if self.webcamdevices:
                 self.recordcam.config(state = NORMAL)
                 if self.rcchecked.get():
@@ -255,10 +260,14 @@ class App(Tk): #the main class for the main window
             startupinfo = subprocess.STARTUPINFO()
             startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
             startupinfo.wShowWindow = subprocess.SW_HIDE
-            if self.rcchecked.get():
-                self.mergeProcess = subprocess.Popen(args= ["ffmpeg","-i",'tmp/tmp.mkv','-i','tmp/tmp.wav','-i','tmp/webcamtmp.mkv','-filter_complex','[2:v] scale=640:-1 [inner]; [0:0][inner] overlay=0:0 [out]',"-shortest",'-map','[out]','-y',"ScreenCaptures/"+self.filename])
-            else:
-                self.mergeProcess = subprocess.Popen(args= ["ffmpeg","-i",'tmp/tmp.mkv','-i','tmp/tmp.wav',"-shortest",'-y',"ScreenCaptures/"+self.filename], startupinfo=startupinfo)
+            command = self.cmdGen.getCvtCmd("ScreenCaptures/"+self.filename)
+
+            self.mergeProcess = subprocess.Popen(args=command,startupinfo=startupinfo)
+
+            # if self.rcchecked.get():
+            #     self.mergeProcess = subprocess.Popen(args= ["ffmpeg","-i",'tmp/tmp.mkv','-i','tmp/tmp.wav','-i','tmp/webcamtmp.mkv','-filter_complex','[2:v] scale=640:-1 [inner]; [0:0][inner] overlay=0:0 [out]',"-shortest",'-map','[out]','-y',"ScreenCaptures/"+self.filename])
+            # else:
+            #     self.mergeProcess = subprocess.Popen(args= ["ffmpeg","-i",'tmp/tmp.mkv','-i','tmp/tmp.wav',"-shortest",'-y',"ScreenCaptures/"+self.filename], startupinfo=startupinfo)
 
             # change the screen capture name to something that is not taken
             os.chdir("ScreenCaptures")
