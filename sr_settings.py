@@ -23,12 +23,11 @@ from cmdGen import cmdGen
 print("HAS IMPORT")
 
 class settingsWin(Toplevel):
-    def __init__(self, parent,sourceCmdGen):
-        print("AH")
-        print(parent)
+    def __init__(self, parent,sourceCmdGen,audioRec):
         Toplevel.__init__(self, parent)
         #self.transient(parent)
         self.cmdGen = sourceCmdGen
+        self.audioRec = audioRec
 
         self.title(string = "Screen Recorder - Settings")
         self.iconbitmap("icon.ico")
@@ -40,7 +39,7 @@ class settingsWin(Toplevel):
         self.notebook = Notebook(self)
         self.notebook.grid(row=0,column=0,columnspan=4,sticky="nesw",padx=5,pady=5)
 
-        #self.genFrame = Frame(self)        
+        ########################################### VIDEO OPTIONS ##############################################      
         self.videoOptions = Frame(self)
         self.videoOptions.columnconfigure(1,weight=1)
 
@@ -50,8 +49,6 @@ class settingsWin(Toplevel):
         self.FPSspin = Spinbox(self.videoOptions,from_=1,to=120,textvariable=self.FPSVar)
         self.FPSspin.grid(row=0,column=1,sticky="ew",pady=5)
         self.FPSVar.set(self.cmdGen.fps)
-
-        # self.notebook.insert("end",self.genFrame,text="General")
 
         self.hwaccVar = StringVar()
 
@@ -71,7 +68,33 @@ class settingsWin(Toplevel):
         self.drawMouseCheck = Checkbutton(self.videoOptions,text="Draw mouse",variable=self.drawMouseVar)
         self.drawMouseCheck.grid(row=5,column=0,columnspan=2,sticky='w',pady=10)
 
-        self.notebook.insert("end",self.videoOptions,text="Video Options")
+        self.notebook.add(self.videoOptions,text="Video Options")
+
+        ######################################################################################################################
+        ############################################### AUDIO OPTIONS #####################################################
+        self.audioOptions = Frame(self)
+        self.audioOptions.columnconfigure(0,weight=1)
+        self.audioOptions.rowconfigure(2,weight=1)
+
+        self.audInputVar = StringVar()
+
+        self.defaultCheck = Radiobutton(self.audioOptions,text="Record from the default device only",value="default",variable = self.audInputVar)
+        self.defaultCheck.grid(row=0,column=0,sticky="w")
+
+        self.selectedCheck = Radiobutton(self.audioOptions,text="Record from these devices:", value="selected",variable=self.audInputVar)
+        self.selectedCheck.grid(row=1,column=0,sticky="w")
+
+        self.audioDevices = Listbox(self.audioOptions,selectmode="multiple")
+        self.audioDevices.grid(row=2,column=0,sticky='news')
+        for i in range(self.audioRec.getDeviceCount()):
+            self.audioDevices.insert("end",self.audioRec.getAPIName(i)+" || "+self.audioRec.getDeviceName(i))
+
+        self.audInputVar.trace("w",self.audButtonChange)
+        self.audInputVar.set("default")
+        
+        self.notebook.add(self.audioOptions,text="Audio Options")
+
+        ####################################################################################################################
 
         self.okButton = Button(self,text="OK",width=9,command=self.applyQuit)
         self.okButton.grid(row=1,column=1,padx=4,pady=4)
@@ -84,6 +107,11 @@ class settingsWin(Toplevel):
 
         self.grab_set()
         self.focus()
+    def audButtonChange(self,*args):
+        if self.audInputVar.get() == "default":
+            self.audioDevices.config(state=DISABLED)
+        else:
+            self.audioDevices.config(state=NORMAL)
     def apply(self):
         self.cmdGen.config(fps=int(self.FPSVar.get()))
         if self.hwaccVar.get() == "CPU":

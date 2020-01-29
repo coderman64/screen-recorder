@@ -145,7 +145,7 @@ class App(Tk): #the main class for the main window
         self.pollClosed()
 
     def openSettings(self):
-        self.settings = settingsWin(self,self.cmdGen)
+        self.settings = settingsWin(self,self.cmdGen,self.recorder)
 
     def pollClosed(self):
         """callback that repeats itself every 100ms. Automatically determines if ffmpeg is still running."""
