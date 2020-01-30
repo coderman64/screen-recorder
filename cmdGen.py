@@ -70,14 +70,12 @@ class cmdGen:
         finalCmd.extend(['-i','tmp/tmp.mkv'])
         for i in range(len(self.audList)):
             finalCmd.extend(['-i','tmp/tmp_'+str(i)+'.wav'])
+        if len(self.audList) > 0:
+            finalCmd.extend(['-filter_complex','amerge=inputs='+str(len(self.audList)),'-ac',str(len(self.audList))])
         # finalCmd.extend(['-c:v',self.encoder])
         if self.enableWebcam:
             finalCmd.extend(['-i','tmp/webcamtmp.mkv','-filter_complex','[2:v] scale=640:-1 [inner]; [0:0][inner] overlay=0:0 [out]','-map','[out]'])
         finalCmd.extend(['-shortest'])
-        # if self.encoder == 'mpeg4':
-        #     finalCmd.extend(['-q:v','7'])
-        # if self.hwaccel: 
-        #     finalCmd.extend(['-hwaccel',self.hwaccel])
         finalCmd.extend(["-y", filename])
         print(finalCmd)
         return finalCmd

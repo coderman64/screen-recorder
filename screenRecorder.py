@@ -231,7 +231,7 @@ class App(Tk): #the main class for the main window
 
             # stop all recording processes
             self.recording = False
-            self.proc.send_signal(subprocess.signal.CTRL_C_EVENT)
+            self.proc.terminate()
             self.recorder.stop_recording()
             if self.rcchecked.get() and self.webcamdevices:
                 self.webcamrecorder.stopCapture()
@@ -250,8 +250,8 @@ class App(Tk): #the main class for the main window
             startupinfo.wShowWindow = subprocess.SW_HIDE
             self.cmdGen.config(audList=self.recorder.devices)
             command = self.cmdGen.getCvtCmd("ScreenCaptures/"+self.filename)
-
-            self.mergeProcess = subprocess.Popen(args=command,startupinfo=startupinfo)
+            if not self.recorder.error:
+                self.mergeProcess = subprocess.Popen(args=command,startupinfo=startupinfo)
 
             # if self.rcchecked.get():
             #     self.mergeProcess = subprocess.Popen(args= ["ffmpeg","-i",'tmp/tmp.mkv','-i','tmp/tmp.wav','-i','tmp/webcamtmp.mkv','-filter_complex','[2:v] scale=640:-1 [inner]; [0:0][inner] overlay=0:0 [out]',"-shortest",'-map','[out]','-y',"ScreenCaptures/"+self.filename])

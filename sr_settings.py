@@ -91,9 +91,7 @@ class settingsWin(Toplevel):
                 self.deviceIDList.append(i)
                 self.audioDevices.insert("end",self.audioRec.getAPIName(i)+" || "+self.audioRec.getDeviceName(i))
                 if i in self.audioRec.devices:
-                    print("SELECT")
                     self.audioDevices.selection_set('end')
-        print("this is selected: "+str(self.audioDevices.curselection()))
 
         self.audInputVar.trace("w",self.audButtonChange)
         if self.audioRec.devices == [None]:
