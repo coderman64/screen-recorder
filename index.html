@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,73 +8,87 @@
   <title>Coderman64's Github - screen-recorder</title>
   <link rel="stylesheet" type="text/css" href="/index.css">
 </head>
+
 <body>
-  <div id = "coolBackground" style="background-image:url('screenshot.png');"></div>
- 
+  <div id="coolBackground" style="background-image:url('screenshot.png');"></div>
+
   <!--top bar-->
   <div id="mainTitle">
-      <a href="/index.html"><img src="/logo.png" width="200px" style="margin-top:0px; margin-left:0px;"></a>
-      <div id="sidebar1">
-          <div id="innersidebar">
-            <h2>Games</h2>
-            <ul>
-              <li><a href="http://coderman64.github.io/ThePath/">The Path</a></li>
-              <li><a href="http://coderman64.github.io/TheBlock/">The Block</a></li>
-              </ul>
-            <h2>Web Experiments</h2>
-            <ul>
-              <li><a href="http://coderman64.github.io/HTML-navigation-app">Navigation App Attempt</a></li>
-              <li><a href="http://coderman64.github.io/webWindow/">webWindow</a></li>
-              <li><a href="http://coderman64.github.io/web-synth/">web synth</a>s</li>    
-            </ul>
-            <h2>Other</h2>
-            <ul>
-            <li><a href="http://coderman64.github.io/Cyntacs">Cyntacs</a></li>
-            <li><a href="http://coderman64.github.io/screen-recorder/">screen recorder</a></li>
-            <li><a href="http://coderman64.github.io/browsi/">Browsi</a></li>
-          </ul>
-        </div>
-        </div>
-      <div id="hamburgerButton" width="50px" height="50px" style="background-color:white; height: 50px; width: 50px; position: fixed; top: 10px; right: 10px;padding: 0 0 0 0;z-index:90;">
-        <div id="TopHamburger" style="height:4px;width:20px; position:relative; left:15px; top:16px; background-color:#888888; transform:rotate(0deg);"></div>
-        <div id="MidHamburger" style="height:4px;width:20px; position:relative; left:15px; top:19px; background-color:#888888;"></div>
-        <div id="LowHamburger" style="height:4px;width:20px; position:relative; left:15px; top:22px; background-color:#888888;"></div>
+    <a href="/index.html"><img src="/logo.png" width="200px" style="margin-top:0px; margin-left:0px;"></a>
+    <div id="sidebar1">
+      <div id="innersidebar">
+        <h2>Ongoing Projects</h2>
+        <ul>
+          <li><a href="https://coderman64.github.io/motobug-engine/">The Motobug Engine</a></li>
+          <li><a href="https://coderman64.github.io/screen-recorder/">screen recorder</a></li>
+          <li><a href="thePath.html">The Path</a></li>
+        </ul>
+        <h2>Legacy</h2>
+        <ul>
+          <li><a href="https://coderman64.github.io/ThePath/">The Path (beta)</a></li>
+          <li><a href="https://coderman64.github.io/TheBlock/">The Block</a></li>
+          <li><a href="https://coderman64.github.io/Cyntacs">Cyntacs</a></li>
+          <li><a href="https://coderman64.github.io/browsi/">Browsi</a></li>
+          <li><a href="https://coderman64.github.io/HTML-navigation-app">Navigation App Attempt</a></li>
+          <li><a href="https://coderman64.github.io/webWindow/">webWindow</a></li>
+          <li><a href="https://coderman64.github.io/web-synth/">web synth</a></li>
+        </ul>
       </div>
+    </div>
+    <div id="hamburgerButton" width="50px" height="50px"
+      style="background-color:white; height: 50px; width: 50px; position: fixed; top: 10px; right: 10px;padding: 0 0 0 0;z-index:90;">
+      <div id="TopHamburger"
+        style="height:4px;width:20px; position:relative; left:15px; top:16px; background-color:#888888; transform:rotate(0deg);">
+      </div>
+      <div id="MidHamburger"
+        style="height:4px;width:20px; position:relative; left:15px; top:19px; background-color:#888888;"></div>
+      <div id="LowHamburger"
+        style="height:4px;width:20px; position:relative; left:15px; top:22px; background-color:#888888;"></div>
+    </div>
   </div>
 
   <!--main content-->
   <div id="mainContent">
     <h1>screen-recorder</h1>
-    
+
     <p>A python GUI for recording your screen in Windows.</p>
-    
-    <p>This program provides an easy GUI-based interface to ffmpeg's gdigrab feature, which allows you to take a video recording of your screen in Windows. I also used pyaudio to record audio as your screen is being recorded.</p>
-    
-    <p>Dowload the .exe file from <a href="http://coderman64.github.io/screen-recorder/screenRecorder.zip">here</a>. Run "ScreenRecorder.exe"</p>
+
+    <p>This program provides an easy GUI-based interface to ffmpeg's gdigrab feature, which allows you to take a video
+      recording of your screen in Windows. I also used pyaudio to record audio as your screen is being recorded.</p>
+
+    <p>Dowload the .exe file from <a href="http://coderman64.github.io/screen-recorder/screenRecorder.zip">here</a>. Run
+      "ScreenRecorder.exe"</p>
 
     <h2> how to get the script up and running:</h2>
-    
-    <p>Download the source code <a href="http://github.com/coderman64/screen-recorder/">here</a>. This should work with any python 3.x version, as long as you have tkinter and pyaudio installed. Tkinter usually comes with the default python installation, and you can install pyaudio through one of the following commands:</p>
-    
+
+    <p>Download the source code <a href="http://github.com/coderman64/screen-recorder/">here</a>. This should work with
+      any python 3.x version, as long as you have tkinter and pyaudio installed. Tkinter usually comes with the default
+      python installation, and you can install pyaudio through one of the following commands:</p>
+
     <pre><code>pip install pyaudio
     </code></pre>
-    
+
     <p>or</p>
-    
+
     <pre><code>python -m pip install pyaudio
     </code></pre>
-    
-    <p>additionally, you need to get ffmpeg.exe from the windows package <a href="https://ffmpeg.zeranoe.com/builds/">here</a>. then just take ffmpeg.exe from the bin folder, and put it in the same folder as the script. Finally, run ScreenRecorder.py.</p>
-    
-</div>
 
-<!--footer-->
-<div id="footer">
-    <div>"The Path," "Coderman64," and the Coderman64 logo are all &copy; 2017 Coderman64, all rights reserved. <br>Having issues? Click <a href = "/Help.html">here</a></div>
-    <div style="background-color:white; height:50px; width: 150px; margin-left:auto;"><img src="/logo.png" width="150px"></div>
-</div>
+    <p>additionally, you need to get ffmpeg.exe from the windows package <a
+        href="https://ffmpeg.zeranoe.com/builds/">here</a>. then just take ffmpeg.exe from the bin folder, and put it in
+      the same folder as the script. Finally, run ScreenRecorder.py.</p>
 
-<!--fade effect for top bar, as you scroll down the page-->
-<script src="/titleBar.js"></script>
+  </div>
+
+  <!--footer-->
+  <div id="footer">
+    <div>"The Path," "Coderman64," and the Coderman64 logo are all &copy; 2017 Coderman64, all rights reserved.
+      <br>Having issues? Click <a href="/Help.html">here</a></div>
+    <div style="background-color:white; height:50px; width: 150px; margin-left:auto;"><img src="/logo.png"
+        width="150px"></div>
+  </div>
+
+  <!--fade effect for top bar, as you scroll down the page-->
+  <script src="/titleBar.js"></script>
 </body>
+
 </html>
