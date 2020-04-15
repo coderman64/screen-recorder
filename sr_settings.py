@@ -50,10 +50,10 @@ class settingsWin(Toplevel):
 
         self.hwaccVar = StringVar()
 
-        Label(self.videoOptions,text="Encoding (GPU encoding may improve perfomance):").grid(row=1,column=0,columnspan=2,sticky="w")
-        self.buttonCPU = Radiobutton(self.videoOptions,text="CPU-only encoder (all formats)",variable=self.hwaccVar,value="CPU")
+        Label(self.videoOptions,text="Encoding (GPU encoding may improve perfomance, but also may result in corrupted files):").grid(row=1,column=0,columnspan=2,sticky="w")
+        self.buttonCPU = Radiobutton(self.videoOptions,text="CPU-only encoder",variable=self.hwaccVar,value="CPU")
         self.buttonCPU.grid(row=2,column=0,columnspan=2,sticky="w")
-        self.buttonNVENC = Radiobutton(self.videoOptions,text="Nvidia NVENC GPU encoder (h.264 only)",variable=self.hwaccVar,value="NVENC")
+        self.buttonNVENC = Radiobutton(self.videoOptions,text="Nvidia NVENC GPU encoder (experimental)",variable=self.hwaccVar,value="NVENC")
         self.buttonNVENC.grid(row=3,column=0,columnspan=2,sticky="w")
         
         if self.cmdGen.encoder == "mpeg4":
@@ -127,7 +127,7 @@ class settingsWin(Toplevel):
             self.cmdGen.config(encoder='h264_nvenc',hwaccel=None)
         if self.audInputVar == "default":
             self.audioRec.setToDefault()
-        else:
+        elif len(self.audioDevices.curselection()) > 0:
             deviceList = []
             for i in range(len(self.deviceIDList)):
                 if self.audioDevices.selection_includes(i):

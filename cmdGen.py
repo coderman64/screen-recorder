@@ -19,13 +19,13 @@ import os
 
 class cmdGen:
     def __init__(self):
-        self.fps = 60
+        self.fps = 30
         self.source = "desktop"
         self.encoder = 'mpeg4'
         self.hwaccel = None
         self.drawMouse = 1
         self.enableWebcam = False
-        self.audList = 0
+        self.audList = [None]
     def config(self,
                 fps=None,source=None,encoder=None,
                 hwaccel='unchanged',drawMouse=None,
@@ -47,7 +47,6 @@ class cmdGen:
     def setEncode(self,encoder):
         self.encoder = encoder
     def getCmd(self,filename):
-        print("ACK")
         finalCmd = ["ffmpeg.exe","-f","gdigrab"]
         finalCmd.extend(['-i',self.source])
         finalCmd.extend(['-framerate',str(self.fps)])
@@ -71,10 +70,14 @@ class cmdGen:
         for i in range(len(self.audList)):
             finalCmd.extend(['-i','tmp/tmp_'+str(i)+'.wav'])
         if len(self.audList) > 0:
-            finalCmd.extend(['-filter_complex','amerge=inputs='+str(len(self.audList)),'-ac',str(len(self.audList))])
+            finalCmd.extend(['-af','amerge=inputs='+str(len(self.audList))+'[aud1]; [aud1] apad [out]','-ac',str(len(self.audList))])
         # finalCmd.extend(['-c:v',self.encoder])
         if self.enableWebcam:
-            finalCmd.extend(['-i','tmp/webcamtmp.mkv','-filter_complex','[2:v] scale=640:-1 [inner]; [0:0][inner] overlay=0:0 [out]','-map','[out]'])
+            finalCmd.extend(['-i','tmp/webcamtmp.mkv','-vf','[2:v] scale=640:-1 [inner]; [0:0][inner] overlay=0:0 [out]','-map','[out]'])
+        if self.hwaccel: 
+            finalCmd.extend(['-hwaccel',self.hwaccel])
+        if self.encoder == 'h264_nvenc':        
+            finalCmd.extend(['-c:v',self.encoder])
         finalCmd.extend(['-shortest'])
         finalCmd.extend(["-y", filename])
         print(finalCmd)

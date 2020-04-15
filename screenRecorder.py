@@ -197,7 +197,7 @@ class App(Tk): #the main class for the main window
             # self.cmdGen.setEncode('nvenc_h264') # CPU: mpeg4 // NVIDIA: h264_nvenc // AMD: no.
             self.cmdGen.setSource(self.what.get()=="title",self.entry2.get())
             command = self.cmdGen.getCmd("tmp/tmp.mkv")
-            self.proc = subprocess.Popen(args=command, startupinfo=startupinfo,stderr=subprocess.PIPE)
+            self.proc = subprocess.Popen(args=command, startupinfo=startupinfo)#,stderr=subprocess.PIPE)
 
             # start audio recording
             self.recorder.record("tmp/tmp.wav")
@@ -232,7 +232,6 @@ class App(Tk): #the main class for the main window
             # stop all recording processes
             self.recording = False
             self.proc.terminate()
-            self.recorder.stop_recording()
             if self.rcchecked.get() and self.webcamdevices:
                 self.webcamrecorder.stopCapture()
             try:
@@ -251,7 +250,7 @@ class App(Tk): #the main class for the main window
             self.cmdGen.config(audList=self.recorder.devices)
             command = self.cmdGen.getCvtCmd("ScreenCaptures/"+self.filename)
             if not self.recorder.error:
-                self.mergeProcess = subprocess.Popen(args=command,startupinfo=startupinfo)
+                self.mergeProcess = subprocess.Popen(args=command)#,startupinfo=startupinfo)
 
             # if self.rcchecked.get():
             #     self.mergeProcess = subprocess.Popen(args= ["ffmpeg","-i",'tmp/tmp.mkv','-i','tmp/tmp.wav','-i','tmp/webcamtmp.mkv','-filter_complex','[2:v] scale=640:-1 [inner]; [0:0][inner] overlay=0:0 [out]',"-shortest",'-map','[out]','-y',"ScreenCaptures/"+self.filename])
@@ -278,3 +277,4 @@ class App(Tk): #the main class for the main window
 
 app = App()
 app.mainloop()
+print("DONE!")
