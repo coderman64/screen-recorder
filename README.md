@@ -12,7 +12,7 @@ or
 ```
 python -m pip install pyaudio
 ```
-additionally, you need to get ffmpeg.exe from the windows package [here](https://ffmpeg.zeranoe.com/builds/). then just take ffmpeg.exe from the bin folder, and put it in the same folder as the script
+additionally, you need to get ffmpeg.exe from the windows package [here](https://ffmpeg.org/download.html#build-windows). then just take ffmpeg.exe from the bin folder, and put it in the same folder as the script
 
 ## what is going on?
 
